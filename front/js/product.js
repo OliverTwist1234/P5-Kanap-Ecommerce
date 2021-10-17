@@ -55,7 +55,7 @@ function recupUserSelect(canap) {
     let colorProduit = document.getElementById("colors").value;
     let quantityProduit = document.getElementById("quantity").value;
 
-    //Groupement des valeurs dans un objet
+    //Récupération des valeurs produit de l'api et Groupement des valeurs dans un objet
     const userSelectProduit = {
       nomProduit: canap.name,
       idProduit: canap._id,
@@ -68,14 +68,12 @@ function recupUserSelect(canap) {
 
     //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
     let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
-
     //JSON.parse pour convertir les données au format JSON en JS dans locol storage
 
     //fonction ajouter le produit dans le local storage
     const ajoutDansLocalStorage = () => {
       //ajout de l'objet des valeurs sélectionnées par l'utilisateur dans un tableau
       produitDansLocalStorage.push(userSelectProduit);
-
       //conversion en JSON et stockage dans la clé "produit" du local storage
       localStorage.setItem("produit", JSON.stringify(produitDansLocalStorage));
     };
@@ -94,27 +92,37 @@ Consulter le panier : OK ou revenir à l'acceuil : ANNULER.`)
 
     //Si produits présents dans le local storage
     if (produitDansLocalStorage) {
+      //Pour tous les objets présents dans local storage
       for (let j = 0; j < produitDansLocalStorage.length; j += 1) {
         if (
+          //si produit selectioné est a le même ID et la même couleur
           userSelectProduit.idProduit == produitDansLocalStorage[j].idProduit &&
           userSelectProduit.couleur == produitDansLocalStorage[j].couleur
         ) {
+          //alors on additionne la qté du produit selectioné à celle dans local storage
           userSelectProduit.quantite =
             parseInt(userSelectProduit.quantite) +
             parseInt(produitDansLocalStorage[j].quantite);
           console.log("inna un");
-          produitDansLocalStorage.splice(j, 4);
+          //et efface l'objet dans local storage
+          produitDansLocalStorage.splice(j, 1);
+          console.log(j);
           console.log(userSelectProduit.quantite);
         }
       }
+      //appel de la fonction d'ajout du produit sélectionné dans local storage
       ajoutDansLocalStorage();
       console.log(produitDansLocalStorage.length);
+      //Appel fenêtre de confirmation
       pageSelect();
     }
     //Pas de produits présents dans le local storage
     else {
+      //on crée un tableau qui contiendra les objets ajoutés dans local storage
       produitDansLocalStorage = [];
+      //appel de la fonction d'ajout du produit sélectionné dans local storage
       ajoutDansLocalStorage();
+      //Appel fenêtre de confirmation
       pageSelect();
     }
   });
