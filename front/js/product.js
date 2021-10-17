@@ -1,9 +1,7 @@
 //Fonction globale qui va récupèrer l'ID du canapé selectionné et l'afficher dans la page product.html
 (async function () {
   const canapeId = getCanapeId();
-  console.log(canapeId);
   const canap = await apiCanape(canapeId);
-  console.log(canap);
   affichCanap(canap);
   recupUserSelect(canap);
 })();
@@ -65,15 +63,16 @@ function recupUserSelect(canap) {
       quantite: quantityProduit,
       prix: canap.price.toFixed(2),
     };
-
+    console.log(userSelectProduit);
     //Stockage des valeurs sélectionnées dans le local storage
 
     //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
     let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
+
     //JSON.parse pour convertir les données au format JSON en JS dans locol storage
 
     //fonction ajouter le produit dans le local storage
-    const ajoutDansLocalStorage = ()=>{
+    const ajoutDansLocalStorage = () => {
       //ajout de l'objet des valeurs sélectionnées par l'utilisateur dans un tableau
       produitDansLocalStorage.push(userSelectProduit);
 
@@ -82,18 +81,34 @@ function recupUserSelect(canap) {
     };
 
     //fonction fenêtre de confirmation et choix aller sur page panier ou page d'acceuil
-    const pageSelect = ()=>{
-      if(window.confirm(`${canap.name}, ${colorProduit} a bien été ajouté au panier.
-Consulter le panier : OK ou revenir à l'acceuil : ANNULER.`)){
+    const pageSelect = () => {
+      if (
+        window.confirm(`${canap.name}, ${colorProduit} a bien été ajouté au panier.
+Consulter le panier : OK ou revenir à l'acceuil : ANNULER.`)
+      ) {
         window.location.href = "cart.html";
-      }else{
+      } else {
         window.location.href = "index.html";
       }
-    }
+    };
 
     //Si produits présents dans le local storage
     if (produitDansLocalStorage) {
+      for (let j = 0; j < produitDansLocalStorage.length; j += 1) {
+        if (
+          userSelectProduit.idProduit == produitDansLocalStorage[j].idProduit &&
+          userSelectProduit.couleur == produitDansLocalStorage[j].couleur
+        ) {
+          userSelectProduit.quantite =
+            parseInt(userSelectProduit.quantite) +
+            parseInt(produitDansLocalStorage[j].quantite);
+          console.log("inna un");
+          produitDansLocalStorage.splice(j, 4);
+          console.log(userSelectProduit.quantite);
+        }
+      }
       ajoutDansLocalStorage();
+      console.log(produitDansLocalStorage.length);
       pageSelect();
     }
     //Pas de produits présents dans le local storage
