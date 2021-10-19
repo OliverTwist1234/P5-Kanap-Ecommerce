@@ -34,7 +34,7 @@ function affichCanap(canap) {
     "item__img"
   )[0].innerHTML = `<img src="${canap.imageUrl}" alt="${canap.altTxt}">`;
   document.getElementById("title").textContent = canap.name;
-  document.getElementById("price").textContent = canap.price.toFixed(2) + " ";
+  document.getElementById("price").textContent = canap.price + ".00 ";
   document.getElementById("description").textContent = canap.description;
   //Boucle for pour afficher les couleurs du canapé dans le menu déroulant
   for (let i = 0; i < canap.colors.length; i += 1) {
@@ -57,11 +57,13 @@ function recupUserSelect(canap) {
 
     //Récupération des valeurs produit de l'api et Groupement des valeurs dans un objet
     const userSelectProduit = {
+      photo: canap.imageUrl,
+      altTxt: canap.altTxt,
       nomProduit: canap.name,
       idProduit: canap._id,
       couleur: colorProduit,
       quantite: quantityProduit,
-      prix: canap.price.toFixed(2),
+      prix: canap.price,
     };
     console.log(userSelectProduit);
     //Stockage des valeurs sélectionnées dans le local storage
@@ -95,7 +97,7 @@ Consulter le panier : OK ou revenir à l'acceuil : ANNULER.`)
       //Pour tous les objets présents dans local storage
       for (let j = 0; j < produitDansLocalStorage.length; j += 1) {
         if (
-          //si produit selectioné est a le même ID et la même couleur
+          //si le produit selectioné a le même ID et la même couleur
           userSelectProduit.idProduit == produitDansLocalStorage[j].idProduit &&
           userSelectProduit.couleur == produitDansLocalStorage[j].couleur
         ) {
