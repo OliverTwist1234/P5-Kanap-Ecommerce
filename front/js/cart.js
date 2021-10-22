@@ -1,16 +1,26 @@
-//fonction globale
+//fonction globale d'affichage des produits dans le panier
 (async function () {
   //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
   let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
   //JSON.parse pour convertir les données au format JSON en JS dans locol storage
   console.log(produitDansLocalStorage);
-  //Appel fonction d'affichage de la page panier
+
+  //Affichage des produits séléctionnés dans la page panier et fonctionnalités ajouts et suppressions
   affichPanierVide(produitDansLocalStorage);
   affichPanier(produitDansLocalStorage);
   supprimProduitPanier(produitDansLocalStorage);
   modifQteProduitPanier(produitDansLocalStorage);
   articlesPrixTotal(produitDansLocalStorage);
+
+  //Gestion du formulaire
+  //ciblage du formulaire dans le DOM
+  const form = document.querySelector(".cart__order__form");
+
+  verifUserDataForm(form);
+  //verifUserNom(form);
 })();
+
+/*************************AFFICHAGE DYNAMIQUE DU PANIER************************************/
 
 //Fontion d'affichage du panier vide si pas de produits dans local storage
 function affichPanierVide(produitDansLocalStorage) {
@@ -35,7 +45,7 @@ function affichPanier(produitDansLocalStorage) {
       "cart__items"
     ).innerHTML += `<article class="cart__item" data-id="${
       produitDansLocalStorage[l].idProduit
-    }">
+    }" data-color="${produitDansLocalStorage[l].couleur}">
     <div class="cart__item__img">
       <img src="${produitDansLocalStorage[l].photo}" alt="${
       produitDansLocalStorage[l].altTxt
@@ -98,6 +108,7 @@ function supprimProduitPanier(produitDansLocalStorage) {
           console.log("produit supprimé dans local storage");
           //alert pour signaler que le produit a été supprimé et recharegement de la page
           alert("Le produit a été supprimé du panier");
+          //on recharge la page pour mettre à jour le HTML
           location.reload();
           console.log("produit supprimé dans html");
         }
@@ -145,7 +156,7 @@ function articlesPrixTotal(produitDansLocalStorage) {
   //déclaration variables de tableaux pour insertion prix et nombre d'articles
   let prixTab = [];
   let articlesTab = [];
-  //récupération des prix panier
+  //récupération des prix panier et des quantités dans le local storage
   for (let q = 0; q < produitDansLocalStorage.length; q += 1) {
     let prixPanier =
       produitDansLocalStorage[q].quantite * produitDansLocalStorage[q].prix;
@@ -161,7 +172,200 @@ function articlesPrixTotal(produitDansLocalStorage) {
     const articles = articlesTab.reduce(reducer, 0);
     console.log(prixTotal);
     console.log(articles);
+    //affichage des valeurs calculées dans la page
     document.getElementById("totalQuantity").textContent = articles;
     document.getElementById("totalPrice").textContent = prixTotal.toFixed(2);
   }
 }
+
+/****************************GESTION DU FORMULAIRE********************************************/
+
+//Fonction de vérification des données entrées par l'utilisateur dans le formulaire
+function verifUserDataForm(form) {
+  //Ecouter la modification du prénom
+  form.firstName.addEventListener("change", function () {
+    validPrenom(this);
+  });
+
+  //Ecouter la modification du prénom
+  form.lastName.addEventListener("change", function () {
+    validNom(this);
+  });
+
+  //Ecouter la modification de l'adresse
+  form.address.addEventListener("change", function () {
+    validAdresse(this);
+  });
+
+  //Ecouter la modification de la Ville
+  form.city.addEventListener("change", function () {
+    validVille(this);
+  });
+
+  //Ecouter la modification de la Ville
+  form.email.addEventListener("change", function () {
+    validEmail(this);
+  });
+
+  //Ecouter la modification la soumission du formulaire
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (
+      validPrenom(form.firstName) &&
+      validNom(form.lastName) &&
+      validAdresse(form.address) &&
+      validVille(form.city) &&
+      validEmail(form.email)
+    ) {
+      console.log("data OK");
+    } else {
+      console.log("data KO");
+    }
+  });
+
+  //fonction de validation du prénom
+  const validPrenom = function (inputPrenom) {
+    //création de la reg exp pour validation prénom
+    let prenomRegExp = new RegExp(
+      `[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð,.'-]{3,50}$`,
+      "g"
+    );
+    let testPrenom = prenomRegExp.test(inputPrenom.value);
+    console.log(form.firstName.value);
+    console.log(testPrenom);
+    //récupération de la balise qui suit le champ de formulaire
+    let msg = inputPrenom.nextElementSibling;
+    //on test l'expression régulière
+    if (testPrenom) {
+      msg.innerHTML = "Prénom valide !";
+      msg.style.color = "greenyellow";
+      console.log("bon");
+      return true;
+    } else {
+      msg.innerHTML = "Prénom non valide !";
+      msg.style.color = "red";
+      console.log("pas bon");
+      alert(
+        "Le Prénom ne doit pas contenir de chiffres, espaces ou caractères spéciaux et doit contenir entre 3 et 20 caractères. Veuillez saisir un prénom valide E: Jean-Pierre"
+      );
+      return false;
+    }
+  };
+
+  //fonction de validation du Nom
+  const validNom = function (inputNom) {
+    //création de la reg exp pour validation de Nom
+    let nomRegExp = new RegExp(
+      `^[A-ZÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ ,.'-]{3,20}$`,
+      "g"
+    );
+    let testNom = nomRegExp.test(inputNom.value);
+    console.log(form.lastName.value);
+    console.log(testNom);
+    //récupération de la balise qui suit le champ de formulaire
+    let msg = inputNom.nextElementSibling;
+    //on test l'expression régulière
+    if (testNom) {
+      msg.innerHTML = "Nom valide !";
+      msg.style.color = "greenyellow";
+      console.log("bon");
+      return true;
+    } else {
+      msg.innerHTML = "Nom non valide !";
+      msg.style.color = "red";
+      console.log("pas bon");
+      alert(
+        "Le Nom ne doit pas contenir de chiffres ou caractères spéciaux et doit contenir entre 3 et 20 caractères en Majuscules."
+      );
+      return false;
+    }
+  };
+
+  //fonction de validation de l'adresse
+  const validAdresse = function (inputAdresse) {
+    //création de la reg exp pour validation de Nom
+    let adresseRegExp = new RegExp(
+      `^[a-zA-Z0-9àáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,50}$`,
+      "g"
+    );
+    let testAdresse = adresseRegExp.test(inputAdresse.value);
+    console.log(form.address.value);
+    console.log(testAdresse);
+    //récupération de la balise qui suit le champ de formulaire
+    let msg = inputAdresse.nextElementSibling;
+    //on test l'expression régulière
+    if (testAdresse) {
+      msg.innerHTML = "Adresse valide !";
+      msg.style.color = "greenyellow";
+      console.log("bon");
+      return true;
+    } else {
+      msg.innerHTML = "Adresse non valide !";
+      msg.style.color = "red";
+      console.log("pas bon");
+      alert(
+        "L'adresse ne doit pas contenir de caractères spéciaux. Veuillez saisir une adresse valide. Ex: 26 Rue des Archives"
+      );
+      return false;
+    }
+  };
+
+  //fonction de validation de la Ville
+  const validVille = function (inputVille) {
+    //création de la reg exp pour validation de Ville
+    let villeRegExp = new RegExp(
+      `^[A-ZÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ ,.'-]{3,20}$`,
+      "g"
+    );
+    let testVille = villeRegExp.test(inputVille.value);
+    console.log(form.city.value);
+    console.log(testVille);
+    //récupération de la balise qui suit le champ de formulaire
+    let msg = inputVille.nextElementSibling;
+    //on test l'expression régulière
+    if (testVille) {
+      msg.innerHTML = "Ville valide !";
+      msg.style.color = "greenyellow";
+      console.log("bon");
+      return true;
+    } else {
+      msg.innerHTML = "Ville non valide !";
+      msg.style.color = "red";
+      console.log("pas bon");
+      alert(
+        "La Ville ne doit pas contenir de chiffres ou caractères spéciaux et doit contenir entre 3 et 20 caractères en Majuscules."
+      );
+      return false;
+    }
+  };
+
+  //fonction de validation de l'Email
+  const validEmail = function (inputEmail) {
+    //création de la reg exp pour validation de Email
+    let emailRegExp = new RegExp(
+      `^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$`,
+      "g"
+    );
+    let testEmail = emailRegExp.test(inputEmail.value);
+    console.log(form.email.value);
+    console.log(testEmail);
+    //récupération de la balise qui suit le champ de formulaire
+    let msg = inputEmail.nextElementSibling;
+    //on test l'expression régulière
+    if (testEmail) {
+      msg.innerHTML = "Email valide !";
+      msg.style.color = "greenyellow";
+      console.log("bon");
+      return true;
+    } else {
+      msg.innerHTML = "Email non valide !";
+      msg.style.color = "red";
+      console.log("pas bon");
+      alert(
+        "Veuillez saisir une adresse email valide Ex: example@bidule.com."
+      );
+      return false;
+    }
+  };
+}
+

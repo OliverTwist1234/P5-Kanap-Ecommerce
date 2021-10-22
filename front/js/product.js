@@ -1,12 +1,14 @@
 //Fonction globale qui va récupèrer l'ID du canapé selectionné et l'afficher dans la page product.html
 (async function () {
   const canapeId = getCanapeId();
+  console.log(canapeId); 
   const canap = await apiCanape(canapeId);
+  console.log(canap);
   affichCanap(canap);
   recupUserSelect(canap);
 })();
 
-// Fonction de récupération du l'ID via le lien
+// Fonction de récupération du l'ID via le lien que l'on a paramètré dans index.html
 function getCanapeId() {
   return new URL(location.href).searchParams.get("id");
 }
