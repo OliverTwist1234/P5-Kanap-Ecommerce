@@ -12,6 +12,7 @@ function apiCall() {
   let url = "http://localhost:3000/api/products";
   return fetch(url)
     .then(function (res) {
+      
       if (res.ok) {
         return res.json();
       }

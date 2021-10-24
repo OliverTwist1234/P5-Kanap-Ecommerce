@@ -140,6 +140,7 @@ function modifQteProduitPanier(produitDansLocalStorage) {
           console.log("condition vérifiée");
           produitDansLocalStorage[p].quantite = modifQte[p].value;
           console.log(produitDansLocalStorage[p].quantite);
+          //on met à jour les données dans le local storage
           localStorage.setItem(
             "produit",
             JSON.stringify(produitDansLocalStorage)
@@ -184,6 +185,7 @@ function articlesPrixTotal(produitDansLocalStorage) {
 function verifUserDataForm(form) {
   //Ecouter la modification du prénom
   form.firstName.addEventListener("change", function () {
+    //on excute la fonction validPrénom pour vérifier la valeur entrée
     validPrenom(this);
   });
 
@@ -207,10 +209,12 @@ function verifUserDataForm(form) {
     validEmail(this);
   });
 
-  //Ecouter la modification la soumission du formulaire
+  //Ecouter la soumission du formulaire
   form.addEventListener("submit", function (e) {
+    //on annule le comportement par défaut du submit
     e.preventDefault();
     if (
+      //si toutes les saisies de l'utilisateur dans le formulaire sont valides
       validPrenom(form.firstName) &&
       validNom(form.lastName) &&
       validAdresse(form.address) &&
@@ -218,6 +222,7 @@ function verifUserDataForm(form) {
       validEmail(form.email)
     ) {
       console.log("data OK");
+      recupDataForm(this);
     } else {
       console.log("data KO");
     }
@@ -361,11 +366,23 @@ function verifUserDataForm(form) {
       msg.innerHTML = "Email non valide !";
       msg.style.color = "red";
       console.log("pas bon");
-      alert(
-        "Veuillez saisir une adresse email valide Ex: example@bidule.com."
-      );
+      alert("Veuillez saisir une adresse email valide Ex: exemple@bidule.com.");
       return false;
     }
   };
-}
 
+  //Fonction de récupération des données validées du formulaire et ajout dans le local storage
+  function recupDataForm(form) {
+    //on met dans un objet les données validées du formulaire
+    const contact = {
+      prenom: form.firstName.value,
+      nom: form.lastName.value,
+      adresse: form.address.value,
+      ville: form.city.value,
+      email: form.email.value,
+    };
+    console.log(contact);
+    //conversion en JSON et stockage dans la clé "produit" du local storage
+    localStorage.setItem("contact", JSON.stringify(contact));
+  }
+}
