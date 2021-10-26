@@ -3,7 +3,6 @@
   //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
   let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
   //JSON.parse pour convertir les données au format JSON en JS dans locol storage
-  console.log(produitDansLocalStorage);
 
   //Affichage des produits séléctionnés dans la page panier et fonctionnalités ajouts et suppressions
   affichPanierVide(produitDansLocalStorage);
@@ -11,13 +10,15 @@
   supprimProduitPanier(produitDansLocalStorage);
   modifQteProduitPanier(produitDansLocalStorage);
   articlesPrixTotal(produitDansLocalStorage);
+  nomsProduits(produitDansLocalStorage);
+  idProduits(produitDansLocalStorage);
 
   //Gestion du formulaire
   //ciblage du formulaire dans le DOM
   const form = document.querySelector(".cart__order__form");
 
-  verifUserDataForm(form);
-  //verifUserNom(form);
+  await verifUserDataForm(form);
+  console.log(produitDansLocalStorage);
 })();
 
 /*************************AFFICHAGE DYNAMIQUE DU PANIER************************************/
@@ -173,16 +174,49 @@ function articlesPrixTotal(produitDansLocalStorage) {
     const articles = articlesTab.reduce(reducer, 0);
     console.log(prixTotal);
     console.log(articles);
+    //stockage du prix total dans le local storage
+    const prixTotalCmde = {
+      prixGlobal: prixTotal,
+    };
+    localStorage.setItem("prixCmde", JSON.stringify(prixTotalCmde));
     //affichage des valeurs calculées dans la page
     document.getElementById("totalQuantity").textContent = articles;
     document.getElementById("totalPrice").textContent = prixTotal.toFixed(2);
   }
 }
 
+//Fonction de récupération des tous les noms de produits dans le panier dans un tableau et stockage dans le local storage
+function nomsProduits(produitDansLocalStorage) {
+  //Déclaration variable de tableau pour y stocker les noms de produits du panier
+  let nomsPanierTab = [];
+  //récupération des noms de produits dans le local storage
+  for (let r = 0; r < produitDansLocalStorage.length; r += 1) {
+    let nomsPanier = produitDansLocalStorage[r].nomProduit;
+    nomsPanierTab.push(nomsPanier);
+    console.log(nomsPanierTab);
+    //stockage du prix total dans le local storage
+    localStorage.setItem("nomsCmde", JSON.stringify(nomsPanierTab));
+  }
+}
+
+//Fonction de récupération des tous les ID de produits dans le panier dans un tableau et stockage dans le local storage
+function idProduits(produitDansLocalStorage) {
+  //Déclaration variable de tableau pour y stocker les noms de produits du panier
+  let idPanierTab = [];
+  //récupération des noms de produits dans le local storage
+  for (let s = 0; s < produitDansLocalStorage.length; s += 1) {
+    let idPanier = produitDansLocalStorage[s].idProduit;
+    idPanierTab.push(idPanier);
+    console.log(idPanierTab);
+    //stockage du prix total dans le local storage
+    localStorage.setItem("idsCmde", JSON.stringify(idPanierTab));
+  }
+}
+
 /****************************GESTION DU FORMULAIRE********************************************/
 
 //Fonction de vérification des données entrées par l'utilisateur dans le formulaire
-function verifUserDataForm(form) {
+async function verifUserDataForm(form) {
   //Ecouter la modification du prénom
   form.firstName.addEventListener("change", function () {
     //on excute la fonction validPrénom pour vérifier la valeur entrée
@@ -223,6 +257,7 @@ function verifUserDataForm(form) {
     ) {
       console.log("data OK");
       recupDataForm(this);
+      sendDataToApi(this);
     } else {
       console.log("data KO");
     }
@@ -374,15 +409,50 @@ function verifUserDataForm(form) {
   //Fonction de récupération des données validées du formulaire et ajout dans le local storage
   function recupDataForm(form) {
     //on met dans un objet les données validées du formulaire
-    const contact = {
-      prenom: form.firstName.value,
-      nom: form.lastName.value,
-      adresse: form.address.value,
-      ville: form.city.value,
+    const contactUser = {
+      firstName: form.firstName.value,
+      lastName: form.lastName.value,
+      address: form.address.value,
+      city: form.city.value,
       email: form.email.value,
     };
-    console.log(contact);
+    console.log(contactUser);
     //conversion en JSON et stockage dans la clé "produit" du local storage
-    localStorage.setItem("contact", JSON.stringify(contact));
+    localStorage.setItem("contact", JSON.stringify(contactUser));
+  }
+
+  //fonction pour envoyer les données du local storage à l'API
+  async function sendDataToApi() {
+    //on récupère les données du local storage et on les stocke dans des variables
+    let contactLocalStorage = JSON.parse(localStorage.getItem("contact"));
+    console.log(contactLocalStorage);
+    let nomsCmdeLocalStorage = JSON.parse(localStorage.getItem("nomsCmde"));
+    console.log(nomsCmdeLocalStorage);
+    let prixCmdeLocalStorage = JSON.parse(localStorage.getItem("prixCmde"));
+    console.log(prixCmdeLocalStorage);
+    let produitLocalStorage = JSON.parse(localStorage.getItem("produit"));
+    console.log(produitLocalStorage);
+    let idsLocalStorage = JSON.parse(localStorage.getItem("idsCmde"));
+    console.log(idsLocalStorage);
+    //On met la totalité des données à envoyer dans un objet
+    const dataToSend = {
+      contactLocalStorage,
+      idsLocalStorage,
+    };
+    console.log(dataToSend);
+    //Requête de type post avec fetch pour envoyer les données à l'API
+    
+    const promise1 = await fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(contactLocalStorage, idsLocalStorage),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => console.log(err));
   }
 }
