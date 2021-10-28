@@ -10,14 +10,13 @@
   supprimProduitPanier(produitDansLocalStorage);
   modifQteProduitPanier(produitDansLocalStorage);
   articlesPrixTotal(produitDansLocalStorage);
-  nomsProduits(produitDansLocalStorage);
   idProduits(produitDansLocalStorage);
 
   //Gestion du formulaire
   //ciblage du formulaire dans le DOM
   const form = document.querySelector(".cart__order__form");
 
-  await verifUserDataForm(form);
+  verifUserDataForm(form);
   console.log(produitDansLocalStorage);
 })();
 
@@ -42,9 +41,10 @@ function affichPanier(produitDansLocalStorage) {
   // pour tous les produits présents dans le local storage
   for (let l = 0; l < produitDansLocalStorage.length; l += 1) {
     //on cible la section cart_items et on injecte le html pour chaque produit dans le local storage et les valeurs des objets produits que l'on récupère
-    document.getElementById(
+    const panier = document.getElementById(
       "cart__items"
-    ).innerHTML += `<article class="cart__item" data-id="${
+    );
+    panier.innerHTML += `<article class="cart__item" data-id="${
       produitDansLocalStorage[l].idProduit
     }" data-color="${produitDansLocalStorage[l].couleur}">
     <div class="cart__item__img">
@@ -185,20 +185,6 @@ function articlesPrixTotal(produitDansLocalStorage) {
   }
 }
 
-//Fonction de récupération des tous les noms de produits dans le panier dans un tableau et stockage dans le local storage
-function nomsProduits(produitDansLocalStorage) {
-  //Déclaration variable de tableau pour y stocker les noms de produits du panier
-  let nomsPanierTab = [];
-  //récupération des noms de produits dans le local storage
-  for (let r = 0; r < produitDansLocalStorage.length; r += 1) {
-    let nomsPanier = produitDansLocalStorage[r].nomProduit;
-    nomsPanierTab.push(nomsPanier);
-    console.log(nomsPanierTab);
-    //stockage du prix total dans le local storage
-    localStorage.setItem("nomsCmde", JSON.stringify(nomsPanierTab));
-  }
-}
-
 //Fonction de récupération des tous les ID de produits dans le panier dans un tableau et stockage dans le local storage
 function idProduits(produitDansLocalStorage) {
   //Déclaration variable de tableau pour y stocker les noms de produits du panier
@@ -257,7 +243,7 @@ async function verifUserDataForm(form) {
     ) {
       console.log("data OK");
       recupDataForm(this);
-      sendDataToApi(this);
+      sendDataToApi();
     } else {
       console.log("data KO");
     }
@@ -418,41 +404,38 @@ async function verifUserDataForm(form) {
     };
     console.log(contactUser);
     //conversion en JSON et stockage dans la clé "produit" du local storage
-    localStorage.setItem("contact", JSON.stringify(contactUser));
+    localStorage.setItem("userData", JSON.stringify(contactUser));
   }
 
   //fonction pour envoyer les données du local storage à l'API
   async function sendDataToApi() {
     //on récupère les données du local storage et on les stocke dans des variables
-    let contactLocalStorage = JSON.parse(localStorage.getItem("contact"));
-    console.log(contactLocalStorage);
-    let nomsCmdeLocalStorage = JSON.parse(localStorage.getItem("nomsCmde"));
-    console.log(nomsCmdeLocalStorage);
-    let prixCmdeLocalStorage = JSON.parse(localStorage.getItem("prixCmde"));
-    console.log(prixCmdeLocalStorage);
-    let produitLocalStorage = JSON.parse(localStorage.getItem("produit"));
-    console.log(produitLocalStorage);
-    let idsLocalStorage = JSON.parse(localStorage.getItem("idsCmde"));
-    console.log(idsLocalStorage);
+    let contact = JSON.parse(localStorage.getItem("userData"));
+    console.log(contact);
+
+    let products = JSON.parse(localStorage.getItem("idsCmde"));
+    console.log(products);
     //On met la totalité des données à envoyer dans un objet
     const dataToSend = {
-      contactLocalStorage,
-      idsLocalStorage,
+      contact,
+      products,
     };
     console.log(dataToSend);
     //Requête de type post avec fetch pour envoyer les données à l'API
-    
     const promise1 = await fetch("http://localhost:3000/api/products/order", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(contactLocalStorage, idsLocalStorage),
+      body: JSON.stringify(dataToSend),
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        console.log(data.orderId);
+        //location.href = "confirmation.html";
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert("Erreur : " + err));      
   }
 }
+
+
