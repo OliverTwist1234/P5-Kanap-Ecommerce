@@ -33,10 +33,10 @@
     //Gestion du formulaire
     //ciblage du formulaire dans le DOM
     const form = document.querySelector(".cart__order__form");
-    //Vérification des données entrées dans le formulaire par l'utilisateur et envoi de la commande
+    //Vérification, validation des données entrées dans le formulaire par l'utilisateur et soumission de la commande
     verifUserDataForm(form);
 
-    
+
   } else if (/confirmation.html/.test(location.href)) {
     //si le lien de la page contient confirmation.html alors on execute le code suivant
     console.log("nous sommes sur la page confirmation.html");
@@ -481,6 +481,6 @@ function getOrderId() {
 // Fonction d'affichage de l'orderId dans la page confimation
 function affichOrderId(orderId) {
   //on cible le span concerné dans la page confimation.html et on lui injecte l'orderId
-  document.getElementById("orderId").innerHTML = `${orderId}`;
+  document.getElementById("orderId").innerHTML = `${orderId}.<br> Merci pour votre confiance.<br>Votre commande sera traitée dans les plus brefs délais.<br> Cordialement,<br>l'équipe "KANAP".`;
   console.log(document.getElementById("orderId"));
 }
