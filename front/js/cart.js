@@ -1,39 +1,73 @@
-//fonction globale d'affichage des produits dans le panier
+//fonction globale d'affichage des produits dans le panier, gestion du formulaire et affichage de l'orderId dans la page confirmation
 (async function () {
-  //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
-  let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
-  //JSON.parse pour convertir les données au format JSON en JS dans locol storage
+  //Le fichier cart.js doit gérer 2 pages html différentes, donc on doit d'abord tester sur quel page html on se trouve et exécuter le code qui lui correspond
+  //On test le lien de la page à l'aide d'une expression régulière
+  if (/cart.html/.test(location.href)) {
+    //si le lien de la page contient cart.html alors on exécute le code suivant
+    console.log("nous sommes sur la page cart.html");
+    console.log(/cart.html/.test(location.href));
 
-  //Affichage des produits séléctionnés dans la page panier et fonctionnalités ajouts et suppressions
-  affichPanierVide(produitDansLocalStorage);
-  affichPanier(produitDansLocalStorage);
-  supprimProduitPanier(produitDansLocalStorage);
-  modifQteProduitPanier(produitDansLocalStorage);
-  articlesPrixTotal(produitDansLocalStorage);
-  idProduits(produitDansLocalStorage);
+    //Récupération des produits sélectionnés par l'utilisateur dans le local storage
+    //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
+    let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
+    //JSON.parse pour convertir les données au format JSON en JS dans locol storage
+    console.log(produitDansLocalStorage);
 
-  //Gestion du formulaire
-  //ciblage du formulaire dans le DOM
-  const form = document.querySelector(".cart__order__form");
+    //Affichage des produits séléctionnés dans la page panier et fonctionnalités ajouts et suppressions
+    if (produitDansLocalStorage === null || produitDansLocalStorage == 0) {
+      //Affichage panier vide si aucun produits sélectionnés par l'utilisateur
+      affichPanierVide(produitDansLocalStorage);
+    } else {
+      //Affichage panier avec produits sélectionés par l'utilisateur
+      affichPanier(produitDansLocalStorage);
+      //Suppression de produits dans la page panier
+      supprimProduitPanier(produitDansLocalStorage);
+      //Modification des quantites dans la page panier et local storage
+      modifQteProduitPanier(produitDansLocalStorage);
+      //calcul du prix total du panier et stockage dans local storage
+      articlesPrixTotal(produitDansLocalStorage);
+      //Récupération des ids produits sélectionnés par l'utiisateur et stockage dans local storage
+      idProduits(produitDansLocalStorage);
+    }
 
-  verifUserDataForm(form);
-  console.log(produitDansLocalStorage);
+    //Gestion du formulaire
+    //ciblage du formulaire dans le DOM
+    const form = document.querySelector(".cart__order__form");
+    //Vérification des données entrées dans le formulaire par l'utilisateur et envoi de la commande
+    verifUserDataForm(form);
+
+    
+  } else if (/confirmation.html/.test(location.href)) {
+    //si le lien de la page contient confirmation.html alors on execute le code suivant
+    console.log("nous sommes sur la page confirmation.html");
+    console.log(/confirmation.html/.test(location.href));
+
+    //récupération de l'orderId passée dans l'URL
+    const orderId = getOrderId();
+    console.log(orderId);
+
+    //Fonction affichage de l'orderId dans la page confirmation
+    affichOrderId(orderId);
+
+    //Effacer les éléments présents dans le local storage
+    localStorage.clear();
+  }
 })();
 
-/*************************AFFICHAGE DYNAMIQUE DU PANIER************************************/
+/*///////////////////////////CODE DESTINE A LA PAGE cart.html ///////////////////////////////////////////////*/
+
+/**************AFFICHAGE DYNAMIQUE DU PANIER ET GESTION DES FOCTIONNALITES************************************/
 
 //Fontion d'affichage du panier vide si pas de produits dans local storage
 function affichPanierVide(produitDansLocalStorage) {
   //s'il n'y a rien de stocker dans local storage
-  if (produitDansLocalStorage === null || produitDansLocalStorage == 0) {
-    console.log("panier vide");
-    let titre = document.getElementsByTagName("h1");
-    console.log(titre);
-    //on modifie le contenu de h1, nombre d'articles et prix total
-    titre[0].textContent = "Votre Panier est vide.";
-    document.getElementById("totalQuantity").textContent = 0;
-    document.getElementById("totalPrice").textContent = 0;
-  }
+  console.log("panier vide");
+  let titre = document.getElementsByTagName("h1");
+  console.log(titre);
+  //on modifie le contenu de h1, nombre d'articles et prix total
+  titre[0].textContent = "Votre Panier est vide.";
+  document.getElementById("totalQuantity").textContent = 0;
+  document.getElementById("totalPrice").textContent = 0;
 }
 
 //Fonction d'affichage des produits dans le panier
@@ -41,9 +75,7 @@ function affichPanier(produitDansLocalStorage) {
   // pour tous les produits présents dans le local storage
   for (let l = 0; l < produitDansLocalStorage.length; l += 1) {
     //on cible la section cart_items et on injecte le html pour chaque produit dans le local storage et les valeurs des objets produits que l'on récupère
-    const panier = document.getElementById(
-      "cart__items"
-    );
+    const panier = document.getElementById("cart__items");
     panier.innerHTML += `<article class="cart__item" data-id="${
       produitDansLocalStorage[l].idProduit
     }" data-color="${produitDansLocalStorage[l].couleur}">
@@ -79,7 +111,7 @@ function affichPanier(produitDansLocalStorage) {
 
 //fonction supprimer un produit présent dans le panier
 function supprimProduitPanier(produitDansLocalStorage) {
-  //ciblage de tous les éléments supprimer dans le panier
+  //ciblage de tous les éléments "supprimer" dans le panier
   let supprimProduit = document.querySelectorAll(".deleteItem");
   console.log(supprimProduit);
   //Ecoute du clic sur tous les éléments supprimer du panier
@@ -412,7 +444,6 @@ async function verifUserDataForm(form) {
     //on récupère les données du local storage et on les stocke dans des variables
     let contact = JSON.parse(localStorage.getItem("userData"));
     console.log(contact);
-
     let products = JSON.parse(localStorage.getItem("idsCmde"));
     console.log(products);
     //On met la totalité des données à envoyer dans un objet
@@ -422,7 +453,7 @@ async function verifUserDataForm(form) {
     };
     console.log(dataToSend);
     //Requête de type post avec fetch pour envoyer les données à l'API
-    const promise1 = await fetch("http://localhost:3000/api/products/order", {
+    await fetch("http://localhost:3000/api/products/order", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -432,10 +463,24 @@ async function verifUserDataForm(form) {
       .then((res) => res.json())
       .then((data) => {
         console.log(data.orderId);
-        //location.href = "confirmation.html";
+        location.href = `confirmation.html?orderId=${data.orderId}`;
       })
-      .catch((err) => alert("Erreur : " + err));      
+      .catch((err) => alert("Erreur : " + err));
   }
 }
 
+/*////////////////////CODE DESTINE A LA PAGE confirmation.html///////////////////////////////////*/
 
+/******************Affichage de l'orderId dans la page confimatio.html ***************************/
+
+// Fonction de récupération de l'orderId via le lien
+function getOrderId() {
+  return new URL(location.href).searchParams.get("orderId");
+}
+
+// Fonction d'affichage de l'orderId dans la page confimation
+function affichOrderId(orderId) {
+  //on cible le span concerné dans la page confimation.html et on lui injecte l'orderId
+  document.getElementById("orderId").innerHTML = `${orderId}`;
+  console.log(document.getElementById("orderId"));
+}

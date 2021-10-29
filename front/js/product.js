@@ -1,12 +1,22 @@
 //Fonction globale qui va récupèrer l'ID du canapé selectionné et l'afficher dans la page product.html
 (async function () {
+
+  //récupération de l'id passée dans l'URL
   const canapeId = getCanapeId();
   console.log(canapeId); 
+
+  //Récupération des données de l'API correspondant à l'id du produit sélectionnés dans la page d'acceuil
   const canap = await apiCanape(canapeId);
   console.log(canap);
+
+  //Fonction d'affichage du produit sélectionné et injection de l'html dans la page product
   affichCanap(canap);
+
+  //Récupération des données sélectionnées par l'utilisateur dans la page product et stockage dans local storage
   recupUserSelect(canap);
 })();
+
+/*********************Fonctions appelées dans la fonction globale***********************/
 
 // Fonction de récupération du l'ID via le lien que l'on a paramètré dans index.html
 function getCanapeId() {
@@ -49,7 +59,10 @@ function affichCanap(canap) {
 /*Fonction de récupération des valeurs sélectionnées par l'utilisateur dans un 
 objet puis dans le localstorage */
 function recupUserSelect(canap) {
+  //On cible le bouton ajouter au panier
   const ajoutPanier = document.getElementById("addToCart");
+
+  //Ecoute du clic sur Ajouter au panier
   ajoutPanier.addEventListener("click", (e) => {
     e.preventDefault();
 
@@ -68,8 +81,8 @@ function recupUserSelect(canap) {
       prix: canap.price,
     };
     console.log(userSelectProduit);
-    //Stockage des valeurs sélectionnées dans le local storage
 
+    //Stockage des valeurs sélectionnées dans le local storage
     //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
     let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
     //JSON.parse pour convertir les données au format JSON en JS dans locol storage
@@ -107,7 +120,7 @@ Consulter le panier : OK ou revenir à l'acceuil : ANNULER.`)
           userSelectProduit.quantite =
             parseInt(userSelectProduit.quantite) +
             parseInt(produitDansLocalStorage[j].quantite);
-          console.log("inna un");
+          console.log("Produit déjà présent dans le local storage");
           //et efface l'objet dans local storage
           produitDansLocalStorage.splice(j, 1);
           console.log(j);

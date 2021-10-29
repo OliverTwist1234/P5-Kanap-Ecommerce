@@ -1,8 +1,11 @@
 /* Fonction globale qui s'auto appelle pour récupérer les données de l'API et afficher les produits dans la page d'acceuil */
 (async function () {
+  //Fonction de récupération des données de tous les produits de l'api
   const canapes = await apiCall();
   console.log(canapes);
+  //pour tous les produits de l'api
   for (canape of canapes) {
+    //on affiche chaque produit dans la page d'acceuil
     affichCanape(canape);
   }
 })();
@@ -14,10 +17,12 @@ function apiCall() {
     .then(function (res) {
       
       if (res.ok) {
+        console.log(res);
         return res.json();
       }
     })
     .then(function (canapes) { 
+      console.log(canapes);
       return canapes;
     })
     .catch(function (err) {
@@ -27,6 +32,7 @@ function apiCall() {
 
 // fonction d'affichage des canapés dans la page d'acceuil
 function affichCanape(canape) {
+  //pour chaque produit on injecte le html suivant dans la page d'acceuil
   document.getElementById("items").innerHTML += `
   <a href="./product.html?id=${canape._id}">
     <article>
