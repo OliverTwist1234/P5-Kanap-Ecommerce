@@ -29,11 +29,13 @@ function apiCanape(canapeId) {
   return fetch(url)
     .then(function (res) {
       if (res.ok) {
+        console.log(res);
         return res.json();
       }
     })
-    .then(function (canapes) {
-      return canapes;
+    .then(function (canap) {
+      console.log(canap);
+      return canap;
     })
     .catch(function (err) {
       alert("Erreur : " + err);
@@ -54,6 +56,7 @@ function affichCanap(canap) {
       "colors"
     ).innerHTML += `<option value="${canap.colors[i]}">${canap.colors[i]}</option>`;
   }
+  console.log(canap.colors);
 }
 
 /*Fonction de récupération des valeurs sélectionnées par l'utilisateur dans un 
@@ -61,12 +64,13 @@ objet puis dans le localstorage */
 function recupUserSelect(canap) {
   //On cible le bouton ajouter au panier
   const ajoutPanier = document.getElementById("addToCart");
-
+  console.log(ajoutPanier);
   //Ecoute du clic sur Ajouter au panier
   ajoutPanier.addEventListener("click", (e) => {
+    console.log(e);
     e.preventDefault();
 
-    //récupération des valeurs sélectionnées
+    //récupération des valeurs sélectionnées par l'utilisateur
     let colorProduit = document.getElementById("colors").value;
     let quantityProduit = document.getElementById("quantity").value;
 
@@ -85,6 +89,7 @@ function recupUserSelect(canap) {
     //Stockage des valeurs sélectionnées dans le local storage
     //Déclaration variable "produitDansLocalStorage" pour key et values dans le local storage
     let produitDansLocalStorage = JSON.parse(localStorage.getItem("produit"));
+    console.log(produitDansLocalStorage);
     //JSON.parse pour convertir les données au format JSON en JS dans locol storage
 
     //fonction ajouter le produit dans le local storage
@@ -94,7 +99,7 @@ function recupUserSelect(canap) {
       //conversion en JSON et stockage dans la clé "produit" du local storage
       localStorage.setItem("produit", JSON.stringify(produitDansLocalStorage));
     };
-
+    
     //fonction fenêtre de confirmation et choix aller sur page panier ou page d'acceuil
     const pageSelect = () => {
       if (
@@ -106,9 +111,11 @@ Consulter le panier : OK ou revenir à l'acceuil : ANNULER.`)
         window.location.href = "index.html";
       }
     };
+    console.log(pageSelect);
 
     //Si produits présents dans le local storage
     if (produitDansLocalStorage) {
+      console.log("Des produits sont présents dans le local storage.");
       //Pour tous les objets présents dans local storage
       for (let j = 0; j < produitDansLocalStorage.length; j += 1) {
         if (
@@ -116,25 +123,24 @@ Consulter le panier : OK ou revenir à l'acceuil : ANNULER.`)
           userSelectProduit.idProduit == produitDansLocalStorage[j].idProduit &&
           userSelectProduit.couleur == produitDansLocalStorage[j].couleur
         ) {
+          console.log("Produit identique déjà présent dans le local storage");
           //alors on additionne la qté du produit selectioné à celle dans local storage
           userSelectProduit.quantite =
             parseInt(userSelectProduit.quantite) +
             parseInt(produitDansLocalStorage[j].quantite);
-          console.log("Produit déjà présent dans le local storage");
           //et efface l'objet dans local storage
           produitDansLocalStorage.splice(j, 1);
-          console.log(j);
-          console.log(userSelectProduit.quantite);
         }
       }
-      //appel de la fonction d'ajout du produit sélectionné dans local storage
+      //appel de la fonction d'ajout du produit sélectionné dans local storage pour mettre à jour les qtés
       ajoutDansLocalStorage();
-      console.log(produitDansLocalStorage.length);
+      console.log(`Qté produit mise à jour : ${userSelectProduit.quantite}`);
       //Appel fenêtre de confirmation
       pageSelect();
     }
     //Pas de produits présents dans le local storage
     else {
+      console.log("Pas de produits présents dans local storage.")
       //on crée un tableau qui contiendra les objets ajoutés dans local storage
       produitDansLocalStorage = [];
       //appel de la fonction d'ajout du produit sélectionné dans local storage

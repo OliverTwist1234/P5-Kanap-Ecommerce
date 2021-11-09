@@ -1,9 +1,9 @@
 //fonction globale d'affichage des produits dans le panier, gestion du formulaire et affichage de l'orderId dans la page confirmation
 (async function () {
   //Le fichier cart.js doit gérer 2 pages html différentes, donc on doit d'abord tester sur quel page html on se trouve et exécuter le code qui lui correspond
-  //On test le lien de la page à l'aide d'une expression régulière
+  //On test le l'URL de la page à l'aide d'une expression régulière
   if (/cart.html/.test(location.href)) {
-    //si le lien de la page contient cart.html alors on exécute le code suivant
+    //si le l'URL de la page contient cart.html alors on exécute le code suivant
     console.log("nous sommes sur la page cart.html");
     console.log(/cart.html/.test(location.href));
 
@@ -15,6 +15,7 @@
 
     //Affichage des produits séléctionnés dans la page panier et fonctionnalités ajouts et suppressions
     if (produitDansLocalStorage === null || produitDansLocalStorage == 0) {
+      console.log("le panier est vide.");
       //Affichage panier vide si aucun produits sélectionnés par l'utilisateur
       affichPanierVide(produitDansLocalStorage);
     } else {
@@ -61,9 +62,8 @@
 //Fontion d'affichage du panier vide si pas de produits dans local storage
 function affichPanierVide(produitDansLocalStorage) {
   //s'il n'y a rien de stocker dans local storage
-  console.log("panier vide");
+  console.log("exécution fonction affichPanierVide.");
   let titre = document.getElementsByTagName("h1");
-  console.log(titre);
   //on modifie le contenu de h1, nombre d'articles et prix total
   titre[0].textContent = "Votre Panier est vide.";
   document.getElementById("totalQuantity").textContent = 0;
@@ -72,6 +72,7 @@ function affichPanierVide(produitDansLocalStorage) {
 
 //Fonction d'affichage des produits dans le panier
 function affichPanier(produitDansLocalStorage) {
+  console.log("exécution de la fonction affichPanier.");
   // pour tous les produits présents dans le local storage
   for (let l = 0; l < produitDansLocalStorage.length; l += 1) {
     //on cible la section cart_items et on injecte le html pour chaque produit dans le local storage et les valeurs des objets produits que l'on récupère
@@ -111,6 +112,7 @@ function affichPanier(produitDansLocalStorage) {
 
 //fonction supprimer un produit présent dans le panier
 function supprimProduitPanier(produitDansLocalStorage) {
+  console.log("exécution de la fonction supprimProduitPanier.");
   //ciblage de tous les éléments "supprimer" dans le panier
   let supprimProduit = document.querySelectorAll(".deleteItem");
   console.log(supprimProduit);
@@ -143,7 +145,7 @@ function supprimProduitPanier(produitDansLocalStorage) {
           alert("Le produit a été supprimé du panier");
           //on recharge la page pour mettre à jour le HTML
           location.reload();
-          console.log("produit supprimé dans html");
+          console.log("produit supprimé du panier");
         }
       }
     });
@@ -152,6 +154,7 @@ function supprimProduitPanier(produitDansLocalStorage) {
 
 //Fonction de modification de la quantité d'un produit dans le panier
 function modifQteProduitPanier(produitDansLocalStorage) {
+  console.log("exécution modifQteProduitPanier.");
   //cibalge de tous les éléments Qté dans le panier
   let modifQte = document.querySelectorAll(".itemQuantity");
   console.log(modifQte);
@@ -170,15 +173,15 @@ function modifQteProduitPanier(produitDansLocalStorage) {
           idModifProduit == produitDansLocalStorage[p].idProduit &&
           colorModifProduit == produitDansLocalStorage[p].couleur
         ) {
-          console.log("condition vérifiée");
           produitDansLocalStorage[p].quantite = modifQte[p].value;
-          console.log(produitDansLocalStorage[p].quantite);
+          console.log(`Qté modifiée : ${produitDansLocalStorage[p].quantite}`);
           //on met à jour les données dans le local storage
           localStorage.setItem(
             "produit",
             JSON.stringify(produitDansLocalStorage)
           );
           location.reload();
+          console.log("Qté modifiée dans local storage.");
         }
       }
     });
@@ -187,6 +190,7 @@ function modifQteProduitPanier(produitDansLocalStorage) {
 
 //Fonction de calcul du nombre d'articles dans le panier et du prix total
 function articlesPrixTotal(produitDansLocalStorage) {
+  console.log("exécution articlesPrixTotal.");
   //déclaration variables de tableaux pour insertion prix et nombre d'articles
   let prixTab = [];
   let articlesTab = [];
@@ -235,6 +239,8 @@ function idProduits(produitDansLocalStorage) {
 
 //Fonction de vérification des données entrées par l'utilisateur dans le formulaire
 async function verifUserDataForm(form) {
+  console.log("exécution verifUserDataForm."); 
+  console.log(form);
   //Ecouter la modification du prénom
   form.firstName.addEventListener("change", function () {
     //on excute la fonction validPrénom pour vérifier la valeur entrée
@@ -283,6 +289,7 @@ async function verifUserDataForm(form) {
 
   //fonction de validation du prénom
   const validPrenom = function (inputPrenom) {
+    console.log("exécution validPrenom.");
     //création de la reg exp pour validation prénom
     let prenomRegExp = new RegExp(
       `[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð,.'-]{3,50}$`,
@@ -297,14 +304,12 @@ async function verifUserDataForm(form) {
     if (testPrenom) {
       msg.innerHTML = "Prénom valide !";
       msg.style.color = "greenyellow";
-      console.log("bon");
       return true;
     } else {
       msg.innerHTML = "Prénom non valide !";
       msg.style.color = "red";
-      console.log("pas bon");
       alert(
-        "Le Prénom ne doit pas contenir de chiffres, espaces ou caractères spéciaux et doit contenir entre 3 et 20 caractères. Veuillez saisir un prénom valide E: Jean-Pierre"
+        "Le Prénom ne doit pas contenir de chiffres, espaces ou caractères spéciaux et doit contenir entre 3 et 20 caractères. Veuillez saisir un prénom valide Ex: Jean-Pierre"
       );
       return false;
     }
@@ -312,6 +317,7 @@ async function verifUserDataForm(form) {
 
   //fonction de validation du Nom
   const validNom = function (inputNom) {
+    console.log("exécution validNom.");
     //création de la reg exp pour validation de Nom
     let nomRegExp = new RegExp(
       `^[A-ZÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ ,.'-]{3,20}$`,
@@ -326,12 +332,10 @@ async function verifUserDataForm(form) {
     if (testNom) {
       msg.innerHTML = "Nom valide !";
       msg.style.color = "greenyellow";
-      console.log("bon");
       return true;
     } else {
       msg.innerHTML = "Nom non valide !";
       msg.style.color = "red";
-      console.log("pas bon");
       alert(
         "Le Nom ne doit pas contenir de chiffres ou caractères spéciaux et doit contenir entre 3 et 20 caractères en Majuscules."
       );
@@ -341,6 +345,7 @@ async function verifUserDataForm(form) {
 
   //fonction de validation de l'adresse
   const validAdresse = function (inputAdresse) {
+    console.log("exécution validAdresse.");
     //création de la reg exp pour validation de Nom
     let adresseRegExp = new RegExp(
       `^[a-zA-Z0-9àáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,50}$`,
@@ -353,14 +358,12 @@ async function verifUserDataForm(form) {
     let msg = inputAdresse.nextElementSibling;
     //on test l'expression régulière
     if (testAdresse) {
-      msg.innerHTML = "Adresse valide !";
+      msg.innerHTML = "Adresse valide !"; 
       msg.style.color = "greenyellow";
-      console.log("bon");
       return true;
     } else {
       msg.innerHTML = "Adresse non valide !";
       msg.style.color = "red";
-      console.log("pas bon");
       alert(
         "L'adresse ne doit pas contenir de caractères spéciaux. Veuillez saisir une adresse valide. Ex: 26 Rue des Archives"
       );
@@ -370,6 +373,7 @@ async function verifUserDataForm(form) {
 
   //fonction de validation de la Ville
   const validVille = function (inputVille) {
+    console.log("exécution validVille.");
     //création de la reg exp pour validation de Ville
     let villeRegExp = new RegExp(
       `^[A-ZÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ ,.'-]{3,20}$`,
@@ -384,12 +388,10 @@ async function verifUserDataForm(form) {
     if (testVille) {
       msg.innerHTML = "Ville valide !";
       msg.style.color = "greenyellow";
-      console.log("bon");
       return true;
     } else {
       msg.innerHTML = "Ville non valide !";
       msg.style.color = "red";
-      console.log("pas bon");
       alert(
         "La Ville ne doit pas contenir de chiffres ou caractères spéciaux et doit contenir entre 3 et 20 caractères en Majuscules."
       );
@@ -398,7 +400,8 @@ async function verifUserDataForm(form) {
   };
 
   //fonction de validation de l'Email
-  const validEmail = function (inputEmail) {
+  const validEmail = function (inputEmail) { 
+    console.log("exécution validEmail.");
     //création de la reg exp pour validation de Email
     let emailRegExp = new RegExp(
       `^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$`,
@@ -413,12 +416,10 @@ async function verifUserDataForm(form) {
     if (testEmail) {
       msg.innerHTML = "Email valide !";
       msg.style.color = "greenyellow";
-      console.log("bon");
       return true;
     } else {
       msg.innerHTML = "Email non valide !";
       msg.style.color = "red";
-      console.log("pas bon");
       alert("Veuillez saisir une adresse email valide Ex: exemple@bidule.com.");
       return false;
     }
@@ -426,6 +427,7 @@ async function verifUserDataForm(form) {
 
   //Fonction de récupération des données validées du formulaire et ajout dans le local storage
   function recupDataForm(form) {
+    console.log("exécution recupDataForm.");
     //on met dans un objet les données validées du formulaire
     const contactUser = {
       firstName: form.firstName.value,
@@ -441,6 +443,7 @@ async function verifUserDataForm(form) {
 
   //fonction pour envoyer les données du local storage à l'API
   async function sendDataToApi() {
+    console.log("exécution sendDataToApi.");
     //on récupère les données du local storage et on les stocke dans des variables
     let contact = JSON.parse(localStorage.getItem("userData"));
     console.log(contact);

@@ -7,6 +7,7 @@
   for (canape of canapes) {
     //on affiche chaque produit dans la page d'acceuil
     affichCanape(canape);
+    console.log(canape);
   }
 })();
 
